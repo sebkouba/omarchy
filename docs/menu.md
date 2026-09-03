@@ -40,13 +40,14 @@ submenu. The fields:
 | `target` | Existing submenu id to open; makes the row a link |
 | `provider` | Runtime row source for this submenu (see Providers) |
 | `aliases` | Alternate `omarchy menu summon <name>` routes; also searchable |
+| `keywords` | Hidden intent terms matched by word prefix; searchable but never used as routes |
 | `description` | Subtitle shown while searching, and extra search text matched by whole word |
 | `when` / `checked` / `disabled` | Shell conditions (see Guards) |
 
 Do not add `aliases` to new entries. They are reserved for established
 alternate names users already type (`power-menu`, `settings`), kept for
 compatibility — see `AGENTS.md`. Search does not need them: labels, the last
-id segment, and descriptions are all searchable.
+id segment, descriptions, and hidden keywords are all searchable.
 
 ## Load and merge
 

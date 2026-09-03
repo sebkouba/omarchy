@@ -12,6 +12,7 @@
   //   target      Existing submenu id to open. Use for links/aliases.
   //   provider    Name of a shell-defined runtime row source (e.g. "fonts").
   //   aliases     alternate `omarchy menu summon <name>` routes; also searchable.
+  //   keywords    Hidden intent terms matched by word prefix; never used as routes.
   //   description Optional subtitle and extra search text.
   //   when        Shell condition; hide row when it fails.
   //   checked     Shell condition; append ✓ when it succeeds.

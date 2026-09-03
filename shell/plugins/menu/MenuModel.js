@@ -33,6 +33,7 @@ function normalizeItem(id, raw) {
     action: value.action || "",
     provider: value.provider || "",
     aliases: aliases,
+    keywords: normalizeAliases(value.keywords),
     when: value.when || "",
     checked: value.checked || "",
     disabled: value.disabled || ""
@@ -323,10 +324,26 @@ function nameSearchText(entry) {
   return [entry.label, searchableToken(leafIdFor(entry.id)), aliases.join(" ")].join(" ").toLowerCase()
 }
 
+function keywordSearchText(entry) {
+  if (!entry) return ""
+  var keywords = []
+  var values = Array.isArray(entry.keywords) ? entry.keywords : []
+  for (var i = 0; i < values.length; i++) keywords.push(searchableToken(values[i]))
+  return keywords.join(" ").toLowerCase()
+}
+
 function termInSearchWords(term, text) {
   var words = String(text || "").toLowerCase().split(/\s+/)
   for (var i = 0; i < words.length; i++) {
     if (words[i] === term) return true
+  }
+  return false
+}
+
+function termPrefixesSearchWord(term, text) {
+  var words = String(text || "").toLowerCase().split(/\s+/)
+  for (var i = 0; i < words.length; i++) {
+    if (words[i].indexOf(term) === 0) return true
   }
   return false
 }
@@ -339,17 +356,27 @@ function descriptionTextMatches(query, text) {
   return true
 }
 
+function keywordTextMatches(query, text) {
+  var terms = String(query || "").toLowerCase().trim().split(/\s+/)
+  for (var i = 0; i < terms.length; i++) {
+    if (terms[i] && !termPrefixesSearchWord(terms[i], text)) return false
+  }
+  return true
+}
+
 function matchesQuery(entry, query, visible) {
   if (!entry || entry.id === "root") return false
   if (!visible) return false
 
   var nameText = nameSearchText(entry)
+  var keywordText = keywordSearchText(entry)
   var descriptionText = String(entry.description || "").toLowerCase()
   var terms = String(query || "").toLowerCase().trim().split(/\s+/)
 
   for (var i = 0; i < terms.length; i++) {
     if (!terms[i]) continue
     if (nameText.indexOf(terms[i]) >= 0) continue
+    if (termPrefixesSearchWord(terms[i], keywordText)) continue
     if (termInSearchWords(terms[i], descriptionText)) continue
     return false
   }
@@ -361,6 +388,7 @@ function searchScore(items, entry, query) {
   var needle = String(query || "").toLowerCase().trim()
   var label = entry.label.toLowerCase()
   var nameText = nameSearchText(entry)
+  var keywordText = keywordSearchText(entry)
   var descriptionText = String(entry.description || "").toLowerCase()
   var score = 80
 
@@ -371,6 +399,7 @@ function searchScore(items, entry, query) {
   else if (label.indexOf(needle) === 0) score = 10
   else if (label.indexOf(needle) >= 0) score = 30
   else if (nameText.indexOf(needle) >= 0) score = 40
+  else if (keywordTextMatches(needle, keywordText)) score = 50
   else if (descriptionTextMatches(needle, descriptionText)) score = 60
 
   if (entry.kind === "menu" || entry.kind === "link") score -= 2
@@ -535,8 +564,11 @@ if (typeof module !== "undefined") {
     searchableToken: searchableToken,
     leafIdFor: leafIdFor,
     nameSearchText: nameSearchText,
+    keywordSearchText: keywordSearchText,
     termInSearchWords: termInSearchWords,
+    termPrefixesSearchWord: termPrefixesSearchWord,
     descriptionTextMatches: descriptionTextMatches,
+    keywordTextMatches: keywordTextMatches,
     matchesQuery: matchesQuery,
     searchScore: searchScore,
     displayRow: displayRow

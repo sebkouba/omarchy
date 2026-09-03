@@ -11,6 +11,7 @@
   //   aliases        alternate `omarchy menu summon <name>` routes; also searchable.
   //                  Reserved for established names users already type; new entries
   //                  should not normally add any.
+  //   keywords       hidden intent terms matched by word prefix; never used as routes
   //   iconFont       font family used for the icon glyph, when it differs from the menu font
   //   title          header text shown when the submenu is open; defaults to label
   //   when           shell condition; hide row when it fails

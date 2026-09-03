@@ -19,6 +19,7 @@ const parsed = menu.parseMenuJsonc(`
     "style.theme": {
       "label": "Themes",
       "aliases": "theme",
+      "keywords": ["appearance", "palette"],
       "description": "appearance colors",
       "action": "omarchy-theme-set"
     },
@@ -42,6 +43,7 @@ assertDeepEqual(
     action: 'omarchy-theme-set',
     provider: '',
     aliases: ['theme'],
+    keywords: ['appearance', 'palette'],
     when: '',
     checked: '',
     disabled: ''
@@ -67,6 +69,7 @@ const partiallyMerged = menu.mergeMenuSources(parsed, partialUser)
 assertEqual(partiallyMerged.items['style.theme'].label, 'Themes', 'menu partial user override preserves default label')
 assertEqual(partiallyMerged.items['style.theme'].action, 'omarchy-theme-set', 'menu partial user override preserves default action')
 assertDeepEqual(partiallyMerged.items['style.theme'].aliases, ['theme'], 'menu partial user override preserves default aliases')
+assertDeepEqual(partiallyMerged.items['style.theme'].keywords, ['appearance', 'palette'], 'menu partial user override preserves default keywords')
 assertEqual(partiallyMerged.items['style.theme'].description, 'appearance colors', 'menu partial user override replaces declared field')
 assert(
   /root\.userMenuItems = root\.parseMenuOverridesJsonc\(text\(\)\)/.test(menuQml),
@@ -115,9 +118,15 @@ assert(
 const entry = merged.items['style.theme']
 assert(menu.matchesQuery(entry, 'theme', true), 'menu matches labels and aliases')
 assert(menu.matchesQuery(entry, 'colors', true), 'menu matches aliases')
+assert(menu.matchesQuery(partiallyMerged.items['style.theme'], 'appear', true), 'menu matches prefixes of hidden keywords')
 assert(!menu.matchesQuery(entry, 'missing', true), 'menu rejects missing terms')
 assert(!menu.matchesQuery(entry, 'theme', false), 'menu hides invisible matches')
-assert(menu.searchScore(merged.items, entry, 'theme') < menu.searchScore(merged.items, entry, 'appearance'), 'menu scores name matches above description matches')
+assert(
+  menu.searchScore(partiallyMerged.items, partiallyMerged.items['style.theme'], 'theme')
+    < menu.searchScore(partiallyMerged.items, partiallyMerged.items['style.theme'], 'appear'),
+  'menu scores name matches above keyword matches'
+)
+assertEqual(menu.resolveRoute(partiallyMerged.items, partiallyMerged.itemOrder, 'palette'), 'palette', 'menu keywords never become routes')
 
 assertDeepEqual(
   menu.displayRow(merged.items, merged.itemOrder, {}, {}, entry, 'Style', 12, 'search'),
