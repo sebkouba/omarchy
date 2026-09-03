@@ -153,6 +153,26 @@ assertDeepEqual(
 
 const defaultItems = menu.parseMenuJsonc(defaultMenuJsonc)
 const defaultById = Object.fromEntries(defaultItems.map(item => [item.id, item]))
+const intentMatches = [
+  ['restar', 'system.reboot'],
+  ['display', 'setup.monitors'],
+  ['sendsp', 'trigger.share'],
+  ['sleep', 'system.suspend'],
+  ['power of', 'system.shutdown'],
+  ['hotk', 'setup.keybindings'],
+  ['eyed', 'trigger.capture.color'],
+  ['ocr', 'trigger.capture.text'],
+  ['caff', 'trigger.toggle.idle-lock'],
+  ['palette', 'style.theme'],
+  ['typef', 'style.font'],
+  ['compos', 'style.hyprland'],
+  ['autol', 'setup.direct-boot'],
+  ['bios', 'update.firmware']
+]
+assert(
+  intentMatches.every(([query, id]) => menu.matchesQuery(defaultById[id], query, true)),
+  'menu intent keywords cover representative default actions'
+)
 
 // Needs the real menu: app rows sort after all menu items, and only at that
 // item count does the order tiebreak alone bury an installed app.
